@@ -36,13 +36,15 @@ int main()
     // a.print();
     // cout<<endl;
     Tensor b = a.convertFloat().scalarMultiply(1.2);
-    b.print();
-    b.map(Activation::relu);
-    b.print();
+    // b.print();
+    // b.map(Activation::relu);
+    // b.print();
     Pipeline myPipeline;
     Linear* l = new Linear(make_pair(1,1),make_pair(2,2),"relu");
+    l->printWeights();
     Linear* q = new Linear(make_pair(2,2),make_pair(2,2),"relu");
+    q->printWeights();
     myPipeline.add(l);
     myPipeline.add(q);
-    myPipeline.printPipeline();
+    // myPipeline.printPipeline();
 }
