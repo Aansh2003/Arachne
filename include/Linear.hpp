@@ -4,14 +4,15 @@
 
 #include "Model.hpp"
 #include <utility>
+#include "Activation.hpp"
 
 class Linear : public Model {
 public:
-    Linear(std::pair<int,int> inputSize, std::pair<int,int> outputSize);
+    Linear(std::pair<int,int> inputSize, std::pair<int,int> outputSize, std::string="relu");
     int getParamCount() override;
     std::pair<int,int> getInputSize() override;
     std::pair<int,int> getOutputSize() override;
-    Tensor<float> forward() override;
+    Tensor<float> forward(Tensor<float>) override;
 
     void backward() override;
 private:
@@ -20,7 +21,7 @@ private:
     int paramCount;
 };
 
-Linear::Linear(std::pair<int,int> inputSize, std::pair<int,int> outputSize) : Model("Linear"),inputSize(inputSize), outputSize(outputSize)
+Linear::Linear(std::pair<int,int> inputSize, std::pair<int,int> outputSize, std::string activation) : Model("Linear",activation),inputSize(inputSize), outputSize(outputSize)
 {
     paramCount = inputSize.second * outputSize.first;
 }
@@ -30,7 +31,7 @@ int Linear::getParamCount()
     return paramCount;
 }
 
-Tensor<float> Linear::forward()
+Tensor<float> Linear::forward(Tensor<float> input)
 {
 
 }

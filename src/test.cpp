@@ -2,9 +2,9 @@
 #include "Tensor.hpp"
 #include <utility>
 #include <cstdlib>
-#include "Relu.hpp"
 #include "Linear.hpp"
 #include "Pipeline.hpp"
+#include "Activation.hpp"
 
 using namespace std;
 
@@ -22,7 +22,7 @@ int main()
     {
         for(int j=0;j<size.second;j++)
         {
-            arr[i][j] = rand();
+            arr[i][j] = rand()-rand();
         }
     }
 
@@ -36,9 +36,12 @@ int main()
     // a.print();
     // cout<<endl;
     Tensor b = a.convertFloat().scalarMultiply(1.2);
+    b.print();
+    b.map(Activation::relu);
+    b.print();
     Pipeline myPipeline;
-    Linear* l = new Linear(make_pair(1,1),make_pair(2,2));
-    Linear* q = new Linear(make_pair(2,2),make_pair(2,2));
+    Linear* l = new Linear(make_pair(1,1),make_pair(2,2),"relu");
+    Linear* q = new Linear(make_pair(2,2),make_pair(2,2),"relu");
     myPipeline.add(l);
     myPipeline.add(q);
     myPipeline.printPipeline();

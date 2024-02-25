@@ -35,6 +35,8 @@ public:
     void inverse();
     void OMPinverse();
 
+    void map(void (*func)(T*));
+
     // Copy function
     Tensor<T> copy();
 
@@ -361,6 +363,18 @@ Tensor<float> Tensor<T>::convertFloat()
     }
 
     return Tensor<float>(floatTensor,this->size);
+}
+
+template<typename T>
+void Tensor<T>::map(void (*func)(T*))
+{
+    for(int i=0;i<this->size.first;i++)
+    {
+        for(int j=0;j<this->size.second;j++)
+        {
+            func(&this->data[i][j]);
+        }
+    }
 }
 
 #endif
