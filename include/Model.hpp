@@ -7,7 +7,7 @@
 
 class Model {
 public:
-    Model(const std::string& _type = "model", const std::string& _activation = "relu") : type(_type),activation(_activation) {}
+    Model(const std::string& _type = "model") : type(_type) {}
     virtual Tensor<float> forward(Tensor<float>) = 0;
     virtual void backward() = 0;
     virtual ~Model() {}
@@ -15,7 +15,6 @@ public:
     virtual std::pair<int,int> getInputSize() = 0;
     virtual std::pair<int,int> getOutputSize() = 0;
 
-    std::string activation;
     std::string type;
 };
 

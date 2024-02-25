@@ -27,6 +27,7 @@ public:
     Tensor<T> OMPadd(Tensor<T>);
 
     Tensor<float> convertFloat();
+    Tensor<T> flatten();
 
     // Matrix tranformations
     void transpose();
@@ -163,7 +164,7 @@ Tensor<T> Tensor<T>::multiply(Tensor<T> b)
 
     for(int i=0;i<this->size.first;i++)
     {
-        multiplied[i] = new int[b.size.second];
+        multiplied[i] = new T[b.size.second];
         for(int j=0;j<b.size.second;j++)
         {
             multiplied[i][j] = 0;
@@ -181,7 +182,15 @@ Tensor<T> Tensor<T>::multiply(Tensor<T> b)
         }
     }
 
-    return Tensor<T>(multiplied,ml_size);
+    Tensor<T> output(multiplied,ml_size);
+
+    for(int i=0;i<this->size.first;i++)
+    {
+        delete multiplied[i];
+    }
+    delete multiplied;
+    
+    return output;
 }
 
 template<typename T>
@@ -195,7 +204,7 @@ Tensor<T> Tensor<T>::OMPmultiply(Tensor<T> b)
 
     for(int i=0;i<this->size.first;i++)
     {
-        multiplied[i] = new int[b.size.second];
+        multiplied[i] = new T[b.size.second];
         for(int j=0;j<b.size.second;j++)
         {
             multiplied[i][j] = 0;
@@ -214,7 +223,15 @@ Tensor<T> Tensor<T>::OMPmultiply(Tensor<T> b)
         }
     }
 
-    return Tensor<T>(multiplied,ml_size);
+    Tensor<T> output(multiplied,ml_size);
+
+    for(int i=0;i<this->size.first;i++)
+    {
+        delete multiplied[i];
+    }
+    delete multiplied;
+    
+    return output;
 }
 
 template<typename T>
@@ -235,7 +252,15 @@ Tensor<T> Tensor<T>::scalarMultiply(float multiplicand)
         }
     }
 
-    return Tensor<T>(multiplied,ml_size);
+    Tensor<T> output(multiplied,ml_size);
+
+    for(int i=0;i<this->size.first;i++)
+    {
+        delete multiplied[i];
+    }
+    delete multiplied;
+    
+    return output;
 }
 
 template<typename T>
@@ -257,7 +282,15 @@ Tensor<T> Tensor<T>::OMPscalarMultiply(float multiplicand)
         }
     }
 
-    return Tensor<T>(multiplied,ml_size);
+    Tensor<T> output(multiplied,ml_size);
+
+    for(int i=0;i<this->size.first;i++)
+    {
+        delete multiplied[i];
+    }
+    delete multiplied;
+    
+    return output;
 }
 
 template<typename T>
@@ -281,7 +314,15 @@ Tensor<T> Tensor<T>::add(Tensor<T> adder)
         }
     }
 
-    return Tensor<T>(added,ml_size);
+    Tensor<T> output(added,ml_size);
+
+    for(int i=0;i<this->size.first;i++)
+    {
+        delete added[i];
+    }
+    delete added;
+    
+    return output;
 }
 
 template<typename T>
@@ -305,8 +346,15 @@ Tensor<T> Tensor<T>::OMPadd(Tensor<T> adder)
             added[i][j] = this->data[i][j]+adder.data[i][j]; 
         }
     }
+    Tensor<T> output(added,ml_size);
 
-    return Tensor<T>(added,ml_size);
+    for(int i=0;i<this->size.first;i++)
+    {
+        delete added[i];
+    }
+    delete added;
+
+    return output;
 }
 
 template<typename T>
@@ -361,8 +409,15 @@ Tensor<float> Tensor<T>::convertFloat()
             floatTensor[i][j] = float(this->data[i][j]);
         }
     }
+    Tensor<float> output(floatTensor,this->size);
 
-    return Tensor<float>(floatTensor,this->size);
+    for(int i=0;i<this->size.first;i++)
+    {
+        delete floatTensor[i];
+    }
+    delete floatTensor;
+
+    return output;
 }
 
 template<typename T>
@@ -375,6 +430,23 @@ void Tensor<T>::map(void (*func)(T*))
             func(&this->data[i][j]);
         }
     }
+}
+
+template<typename T>
+Tensor<T> Tensor<T>::flatten()
+{
+    T** data = new T*[1];
+    data[0] = new T[this->size.first*this->size.second];
+
+    for(int i=0;i<this->size.first;i++)
+    {
+        for(int j=0;j<this->size.second;j++)
+        {
+            data[0][i*j] = this->data[i][j];
+        }
+    }
+    Tensor<T> output(data,make_pair(1,this->size.first*this->size.second));
+    return output;
 }
 
 #endif

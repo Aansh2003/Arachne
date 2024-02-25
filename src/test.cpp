@@ -3,6 +3,7 @@
 #include <utility>
 #include <cstdlib>
 #include "Linear.hpp"
+#include "Flatten.hpp"
 #include "Pipeline.hpp"
 #include "Activation.hpp"
 
@@ -36,15 +37,17 @@ int main()
     // a.print();
     // cout<<endl;
     Tensor b = a.convertFloat().scalarMultiply(1.2);
-    // b.print();
-    // b.map(Activation::relu);
-    // b.print();
+    // b.printSize();
     Pipeline myPipeline;
-    Linear* l = new Linear(make_pair(1,1),make_pair(2,2),"relu");
-    l->printWeights();
-    Linear* q = new Linear(make_pair(2,2),make_pair(2,2),"relu");
-    q->printWeights();
+    Linear* l = new Linear(make_pair(4,4),2,Activation::Relu);
+    Tensor<float> output = l->forward(b);
+    output.print();
+    // Linear* q = new Linear(make_pair(2,2),make_pair(2,2),"relu");
+    Flatten* q = new Flatten(make_pair(4,2));
+    // q->printWeights();
     myPipeline.add(l);
     myPipeline.add(q);
-    // myPipeline.printPipeline();
+    myPipeline.printPipeline();
+    Tensor<float> out = myPipeline.forward(b);
+    out.print();
 }

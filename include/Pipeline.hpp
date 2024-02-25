@@ -12,6 +12,7 @@ public:
     Pipeline();
     void add(Model*);
     void printPipeline();
+    Tensor<float> forward(Tensor<float> input);
 
 private:
     std::vector<Model*> network;
@@ -38,14 +39,23 @@ void Pipeline::printPipeline()
 {
     int total_parameter_count = 0;
     std::unordered_map<std::string,int> count_check;
-    std::cout<<"Layer"<<"\t\t"<<"Input"<<"\t\t"<<"Output"<<"\t\t"<<"Activation"<<"\t\t"<<"Parameter Count"<<std::endl;
+    std::cout<<"Layer"<<"\t\t"<<"Input"<<"\t\t"<<"Output"<<"\t\t"<<"Parameter Count"<<std::endl;
     for(Model* model: network)
     {
         total_parameter_count += model->getParamCount();
         count_check[model->type]+=1;
-        std::cout<<model->type<<" "<<count_check[model->type]<<":"<<"\t\t"<<"("<<model->getInputSize().first<<","<<model->getInputSize().second<<")"<<"\t\t"<<"("<<model->getOutputSize().first<<","<<model->getOutputSize().second<<")"<<"\t\t"<<model->activation<<"\t\t"<<model->getParamCount()<<std::endl;
+        std::cout<<model->type<<" "<<count_check[model->type]<<":"<<"\t\t"<<"("<<model->getInputSize().first<<","<<model->getInputSize().second<<")"<<"\t\t"<<"("<<model->getOutputSize().first<<","<<model->getOutputSize().second<<")"<<"\t\t"<<model->getParamCount()<<std::endl;
     }
     std::cout<<"Total Parameter Count:"<<"\t"<<total_parameter_count<<std::endl;
+}
+
+Tensor<float> Pipeline::forward(Tensor<float> input)
+{
+    for(Model* model: network)
+    {
+        input = model->forward(input);
+    }
+    return input;
 }
 
 #endif

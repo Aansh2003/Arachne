@@ -9,7 +9,7 @@
 
 class Linear : public Model {
 public:
-    Linear(std::pair<int,int> inputSize, std::pair<int,int> outputSize, std::string="relu");
+    Linear(std::pair<int,int> inputSize, int outputSize, void (*activation_function)(Tensor<float>&));
     int getParamCount() override;
     std::pair<int,int> getInputSize() override;
     std::pair<int,int> getOutputSize() override;
@@ -22,13 +22,14 @@ private:
     int paramCount;
     Tensor<float>* weights;
     std::pair<int,int> weight_size;
+    void (*act_func)(Tensor<float>&);
 };
 
-Linear::Linear(std::pair<int,int> inputSize, std::pair<int,int> outputSize, std::string activation) : Model("Linear",activation),inputSize(inputSize), outputSize(outputSize)
+Linear::Linear(std::pair<int,int> inputSize, int outputSize, void (*activation_function)(Tensor<float>&)) : Model("Linear"),inputSize(inputSize), outputSize(make_pair(inputSize.second,outputSize)),act_func(activation_function)
 {
-    paramCount = inputSize.second * outputSize.first;
-    weight_size = make_pair(inputSize.second,outputSize.first);
-    float value = std::sqrt(6.0/((inputSize.first*inputSize.second)+(outputSize.first*outputSize.second)));
+    weight_size = make_pair(outputSize,inputSize.second);
+    paramCount = weight_size.second * weight_size.first;
+    float value = std::sqrt(6.0/((inputSize.first*inputSize.second)+(outputSize*inputSize.second)));
     float **data = new float*[weight_size.first];
     for(int i=0;i<weight_size.first;i++)
     {
@@ -53,7 +54,9 @@ int Linear::getParamCount()
 
 Tensor<float> Linear::forward(Tensor<float> input)
 {
-
+    Tensor<float> next_val = weights->multiply(input);
+    act_func(next_val);
+    return next_val;
 }
 
 void Linear::backward()
