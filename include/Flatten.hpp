@@ -19,7 +19,7 @@ private:
     void (*act_func)(Tensor<float>&);
 };
 
-Flatten::Flatten(std::pair<int,int> inputSize) : Model("Flatten") , inputSize(inputSize) , outputSize(1,inputSize.first*inputSize.second)
+Flatten::Flatten(std::pair<int,int> inputSize) : Model("Flatten",false) , inputSize(inputSize) , outputSize(1,inputSize.first*inputSize.second)
 {
     act_func = Activation::Linear;
     paramCount = 0;

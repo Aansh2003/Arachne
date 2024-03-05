@@ -21,7 +21,7 @@ private:
     int paramCount;
 };
 
-Normalize::Normalize(std::pair<int,int> inputSize) : Model("Normalization"), inputSize(inputSize)
+Normalize::Normalize(std::pair<int,int> inputSize) : Model("Normalization",false), inputSize(inputSize)
 {
     paramCount = 0;
     this->inputSize = make_pair(inputSize.first,inputSize.second);

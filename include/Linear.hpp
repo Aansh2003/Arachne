@@ -16,16 +16,17 @@ public:
     Tensor<float> forward(Tensor<float>) override;
     void printWeights();
     void backward() override;
+    Tensor<float>* weights;
+
 private:
     std::pair<int,int> inputSize;
     std::pair<int,int> outputSize;
     int paramCount;
-    Tensor<float>* weights;
     std::pair<int,int> weight_size;
     void (*act_func)(Tensor<float>&);
 };
 
-Linear::Linear(std::pair<int,int> inputSize, int outputSize, void (*activation_function)(Tensor<float>&)) : Model("Linear"),inputSize(inputSize), outputSize(make_pair(inputSize.second,outputSize)),act_func(activation_function)
+Linear::Linear(std::pair<int,int> inputSize, int outputSize, void (*activation_function)(Tensor<float>&)) : Model("Linear",true),inputSize(inputSize), outputSize(make_pair(inputSize.second,outputSize)),act_func(activation_function)
 {
     weight_size = make_pair(outputSize,inputSize.second);
     paramCount = weight_size.second * weight_size.first;

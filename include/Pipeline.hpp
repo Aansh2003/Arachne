@@ -13,9 +13,9 @@ public:
     void add(Model*);
     void printPipeline();
     Tensor<float> forward(Tensor<float> input);
-
 private:
     std::vector<Model*> network;
+    vector<Tensor<float>> graph;
 };
 
 Pipeline::Pipeline()
@@ -51,9 +51,12 @@ void Pipeline::printPipeline()
 
 Tensor<float> Pipeline::forward(Tensor<float> input)
 {
+    graph.push_back(input);
     for(Model* model: network)
     {
         input = model->forward(input);
+        if(model->trainable)
+            graph.push_back(input);
     }
     return input;
 }

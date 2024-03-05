@@ -12,6 +12,8 @@ class Activation
     public:
         static void relu(float*);
         static void Relu(Tensor<float>&);
+        static void LeakyRelu(Tensor<float>&);
+        static void leakyrelu(float*);
         static void Linear(Tensor<float>&);
         static void Softmax(Tensor<float>&);
         static void Softmax2d(Tensor<float>&); // Not implemented
@@ -71,6 +73,16 @@ void Activation::Softmax2d(Tensor<float>& input)
     	    input.data[i][j] = pow(Variables::e,input.data[i][j]) / sum;
     	}
     }
+}
 
+void Activation::LeakyRelu(Tensor<float>& input)
+{
+    input.map(Activation::leakyrelu);
+}
+
+void Activation::leakyrelu(float* input)
+{
+    if(*input<0)
+        *input = -0.1 * *input;
 }
 #endif
