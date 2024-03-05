@@ -28,6 +28,9 @@ public:
 
     Tensor<float> convertFloat();
     Tensor<T> flatten();
+    
+    T max();
+    T min();
 
     // Matrix tranformations
     void transpose();
@@ -448,5 +451,39 @@ Tensor<T> Tensor<T>::flatten()
     Tensor<T> output(data,make_pair(1,this->size.first*this->size.second));
     return output;
 }
+
+template<typename T>
+T Tensor<T>::max()
+{
+    T small = this->data[0][0];
+    for(int i=0;i<this->size.first;i++)
+    {
+        for(int j=0;j<this->size.second;j++)
+        {
+		if(this->data[i][j] > small)
+		    small = this->data[i][j];
+        }
+    }
+
+    return small;
+}
+
+template<typename T>
+T Tensor<T>::min()
+{
+    T big = this->data[0][0];
+    
+    for(int i=0;i<this->size.first;i++)
+    {
+        for(int j=0;j<this->size.second;j++)
+        {
+		if(this->data[i][j] < big)
+		    big = this->data[i][j];
+        }
+    }
+
+    return big;
+}
+
 
 #endif
