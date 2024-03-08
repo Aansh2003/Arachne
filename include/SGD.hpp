@@ -13,7 +13,7 @@ class SGD : public Optimizer
     float learning_rate;
 };
 
-SGD::SGD(float alpha) : learning_rate(alpha) {}
+SGD::SGD(float alpha=1e-2) : learning_rate(alpha) {}
 
 void SGD::update_weights(Tensor<float> weights, float loss)
 {

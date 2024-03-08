@@ -28,6 +28,8 @@ public:
 
     Tensor<float> convertFloat();
     Tensor<T> flatten();
+
+    ~Tensor();
     
     T max();
     T min();
@@ -53,6 +55,16 @@ public:
 private:
     // static void swap(T*,T*);
 };
+
+template<typename T>
+Tensor<T>::~Tensor()
+{
+    for(int i=0;i<this->size.second;i++)
+    {
+        delete this->data[i];
+    }
+    delete this->data;
+}
 
 template<typename T>
 Tensor<T>::Tensor(T** data, pair<int,int> size) {
