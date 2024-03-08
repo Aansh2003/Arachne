@@ -15,7 +15,6 @@ public:
     Tensor<float> forward(Tensor<float>) override;
     void printWeights();
     void backward() override;
-    Tensor<float>* weights;
 
 private:
     std::pair<int,int> inputSize;
@@ -53,7 +52,7 @@ int Linear::getParamCount()
 
 Tensor<float> Linear::forward(Tensor<float> input)
 {
-    Tensor<float> next_val = weights->multiply(input);
+    Tensor<float> next_val = *weights*input;
     return next_val;
 }
 

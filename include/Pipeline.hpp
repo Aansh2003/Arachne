@@ -7,22 +7,38 @@
 #include <utility>
 #include <unordered_map>
 #include "Optimizer.hpp"
+#include "Loss.hpp"
+#include "Activation.hpp"
 
 class Pipeline {
 public:
     Pipeline();
     void add(Model*);
     void printPipeline();
-    Tensor<float> forward(Tensor<float> input);
-    void backward(Optimizer*,float);
+    template<typename T>
+    Tensor<float> forward(Tensor<T> input);
+    void backward(Optimizer*,Loss*,Tensor<float>);
 private:
     std::vector<Model*> network;
     vector<Tensor<float>> graph;
+
+    int getTrainableLayers();
 };
 
 Pipeline::Pipeline()
 {
 
+}
+
+int Pipeline::getTrainableLayers()
+{
+    int count = 0;
+    for(Model* model:network)
+    {
+        if(model->trainable)
+            count++;
+    }
+    return count;
 }
 
 void Pipeline::add(Model* model)
@@ -34,7 +50,24 @@ void Pipeline::add(Model* model)
         if (current_size != model->getInputSize())
             throw std::runtime_error("Incorrect size of weights, input size must match previous output size.");
     }
-    network.push_back(model);
+
+    if(network.size()>0 && network.back()->trainable)
+    {
+        if (dynamic_cast<Activation*>(model))
+            network.push_back(model);
+        else
+            throw std::runtime_error("Trainable layers must be followed by an activation function.");
+    }
+    else if(network.size()>0 && !network.back()->trainable && dynamic_cast<Activation*>(model))
+    {
+        throw std::runtime_error("Activation layer requires trainable layer preceeding it.");
+    }
+    else if(getTrainableLayers()==0 && dynamic_cast<Activation*>(model))
+    {
+        throw std::runtime_error("Activation layer requires trainable layer preceeding it.");
+    }
+    else
+        network.push_back(model);
 }
 
 void Pipeline::printPipeline()
@@ -51,20 +84,40 @@ void Pipeline::printPipeline()
     std::cout<<"Total Parameter Count:"<<"\t"<<total_parameter_count<<std::endl;
 }
 
-Tensor<float> Pipeline::forward(Tensor<float> input)
+template<typename T>
+Tensor<float> Pipeline::forward(Tensor<T> input)
 {
-    graph.push_back(input);
+    if(network.back()->trainable)
+        throw std::runtime_error("Last layer must be an activation layer, use Linear activation to maintain outputs");
+    Tensor<float> matrix = input.convertFloat();
+    graph.push_back(matrix);
     for(Model* model: network)
     {
-        input = model->forward(input);
-        graph.push_back(input);
+        matrix = model->forward(matrix);
+        if (dynamic_cast<Activation*>(model))
+            graph.push_back(matrix);
     }
-    return input;
+    return matrix;
 }
 
-void Pipeline::backward(Optimizer* optimizer, float loss)
+void Pipeline::backward(Optimizer* optimizer, Loss* loss, Tensor<float> actual)
 {
+    Tensor<float> delta_output = graph.back() - actual;
+    // delta_output.print();
 
+    int count = 0;
+    for(int i=network.size()-1;i>=0;i--)
+    {
+        if(network[i]->trainable && count == 0)
+        {
+            Tensor<float> weights_copy = network[i]->weights->copy();
+            weights_copy.transpose();
+            Tensor<float> dldw = weights_copy * delta_output;
+            dldw.print();
+            count++;
+            cout<<count;
+        }
+    }
 }
 
 #endif

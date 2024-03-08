@@ -58,6 +58,9 @@ public:
 
     // Operations
     Tensor& operator=(const Tensor& other);
+    Tensor operator+(Tensor other);
+    Tensor operator-(Tensor other);
+    Tensor operator*(Tensor other);
 
     // Helper functions
     pair<int,int> getSize();
@@ -329,7 +332,7 @@ Tensor<T> Tensor<T>::add(Tensor<T> adder)
     pair<int,int> ml_size = make_pair(this->size.first,this->size.second);
     for(int i=0;i<this->size.first;i++)
     {
-        added[i] = new int[this->size.second];
+        added[i] = new T[this->size.second];
     }
 
     for(int i=0;i<this->size.first;i++)
@@ -361,7 +364,7 @@ Tensor<T> Tensor<T>::OMPadd(Tensor<T> adder)
     pair<int,int> ml_size = make_pair(this->size.first,this->size.second);
     for(int i=0;i<this->size.first;i++)
     {
-        added[i] = new int[this->size.second];
+        added[i] = new T[this->size.second];
     }
 
     #pragma omp parallel for collapse(2)
@@ -603,6 +606,21 @@ Tensor<T>& Tensor<T>::operator=(const Tensor& other) {
         }
     }
     return *this;
+}
+
+template<typename T>
+Tensor<T> Tensor<T>::operator*(const Tensor other) {
+    return this->multiply(other);
+}
+
+template<typename T>
+Tensor<T> Tensor<T>::operator+(Tensor other) {
+    return this->add(other);
+}
+
+template<typename T>
+Tensor<T> Tensor<T>::operator-(Tensor other) {
+    return this->add(other.scalarMultiply(-1));
 }
 
 template<typename T>

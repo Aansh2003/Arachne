@@ -7,7 +7,8 @@
 #include "Pipeline.hpp"
 #include "Relu.hpp"
 #include "Normalize.hpp"
-#include "Loss.hpp"
+#include "MSELoss.hpp"
+#include "SGD.hpp"
 
 using namespace std;
 
@@ -31,8 +32,6 @@ int main()
     Tensor<float> actual = Tensor(data,out_size);
     // actual.flatten().print();
 
-    Tensor<float> trial = actual.reshape(make_pair(4,2));
-    trial.print();
     // a.print();
     // Tensor b = a.copy();
     // b.print();
@@ -41,20 +40,23 @@ int main()
     // a.OMPtranspose();
     // a.print();
     // cout<<endl;
-    // Tensor<float> b = a.convertFloat();
     // // // b.printSize();
-    // Pipeline myPipeline;
-    // Linear* q = new Linear(make_pair(4,4),2);
-    // Normalize* l = new Normalize(make_pair(4,4));
-    // Relu* r = new Relu(make_pair(4,2));
+    Pipeline myPipeline;
+    Linear* q = new Linear(make_pair(4,4),2);
+    Normalize* l = new Normalize(make_pair(4,4));
+    Relu* r = new Relu(make_pair(4,2));
+
+    MSELoss loss_fn;
     // // //Flatten* q = new Flatten(make_pair(4,2));
     // // // q->printWeights();
-    // myPipeline.add(l);
-    // myPipeline.add(q);
-    // myPipeline.add(r);
-    // myPipeline.printPipeline();
-    // Tensor<float> out = myPipeline.forward(b);
+    myPipeline.add(l);
+    myPipeline.add(q);
+    myPipeline.add(r);
+    myPipeline.printPipeline();
+    Tensor<float> out = myPipeline.forward(a);
     // out.print();
+    SGD optimizer;
+    // cout<<loss_fn.loss(out,actual);
 
-    // cout<<Loss::MSELoss(out,actual);
+    myPipeline.backward(&optimizer,&loss_fn,actual);
 }
