@@ -113,9 +113,7 @@ void Pipeline::backward(Optimizer* optimizer, Loss* loss, Tensor<float> actual)
             Tensor<float> weights_copy = network[i]->weights->copy();
             weights_copy.transpose();
             Tensor<float> dldw = weights_copy * delta_output;
-            dldw.print();
-            count++;
-            cout<<count;
+            optimizer->update_weights(*network[i]->weights,dldw,delta_output);
         }
     }
 }

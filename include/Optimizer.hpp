@@ -6,7 +6,7 @@
 class Optimizer
 {
     public:
-    virtual void update_weights(Tensor<float>&,float) = 0;
+    virtual void update_weights(Tensor<float>&,Tensor<float>,Tensor<float>) = 0;
 };
 
 #endif
