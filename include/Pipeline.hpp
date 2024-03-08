@@ -6,6 +6,7 @@
 #include <iostream>
 #include <utility>
 #include <unordered_map>
+#include "Optimizer.hpp"
 
 class Pipeline {
 public:
@@ -13,6 +14,7 @@ public:
     void add(Model*);
     void printPipeline();
     Tensor<float> forward(Tensor<float> input);
+    void backward(Optimizer*,float);
 private:
     std::vector<Model*> network;
     vector<Tensor<float>> graph;
@@ -58,6 +60,11 @@ Tensor<float> Pipeline::forward(Tensor<float> input)
         graph.push_back(input);
     }
     return input;
+}
+
+void Pipeline::backward(Optimizer* optimizer, float loss)
+{
+
 }
 
 #endif

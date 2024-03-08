@@ -32,6 +32,7 @@ public:
 
     Tensor<float> convertFloat();
     Tensor<T> flatten();
+    Tensor<T> reshape(pair<int,int>);
 
     static Tensor<int> randomTensor(std::pair<int,int>);
     static Tensor<int> randomTensor(std::pair<int,int>,int min,int max);
@@ -461,19 +462,24 @@ template<typename T>
 Tensor<T> Tensor<T>::flatten()
 {
     T** data = new T*[1];
-    data[0] = new T[this->size.first*this->size.second];
+    data[0] = new T[this->size.first * this->size.second];
 
-    for(int i=0;i<this->size.first;i++)
+    int index = 0;
+    for(int i = 0; i < this->size.first; i++)
     {
-        for(int j=0;j<this->size.second;j++)
+        for(int j = 0; j < this->size.second; j++)
         {
-            data[0][i*j] = this->data[i][j];
+            data[0][index++] = this->data[i][j];
         }
     }
-    Tensor<T> output(data,make_pair(1,this->size.first*this->size.second));
+
+    Tensor<T> output(data, make_pair(1, this->size.first * this->size.second));
+
+    delete[] data[0];
+    delete[] data;
+
     return output;
 }
-
 template<typename T>
 T Tensor<T>::max()
 {
@@ -581,17 +587,15 @@ Tensor<float> Tensor<T>::randomFloatTensor(std::pair<int,int> size)
 
 template<typename T>
 Tensor<T>& Tensor<T>::operator=(const Tensor& other) {
-    if (this != &other) { // Check for self-assignment
-        // Deallocate existing memory
+    if (this != &other)
+    {
         for (int i = 0; i < size.first; ++i) {
             delete[] data[i];
         }
         delete[] data;
 
-        // Copy size
         size = other.size;
 
-        // Allocate new memory
         data = new T*[size.first];
         for (int i = 0; i < size.first; ++i) {
             data[i] = new T[size.second];
@@ -609,5 +613,47 @@ Tensor<T>::Tensor(const Tensor& other) : size(other.size) {
         std::copy(other.data[i], other.data[i] + size.second, data[i]);
     }
 }
+
+template<typename T>
+Tensor<T> Tensor<T>::reshape(pair<int,int> size)
+{
+    if(this->size.first*this->size.second != size.first*size.second)
+    {
+        throw std::runtime_error("Invalid shape, product of size values must match eath other");
+    }
+
+    T** data = new T*[size.first];
+    for(int i=0;i<size.first;i++)
+    {
+        data[i] = new T[size.second];
+    }
+
+    Tensor<T> temp = this->flatten();
+    temp.print();
+
+    int curr_row = 0,curr_col=0;
+    for(int i = 0; i< temp.getSize().second;i++)
+    {
+        if(curr_col != 0 && curr_col%size.second == 0)
+        {
+            curr_row += 1;
+            curr_col = 0;
+        }
+        data[curr_row][curr_col] = temp.data[0][i];
+        curr_col += 1;
+    }
+
+    Tensor<T> output = Tensor<T>(data,size);
+
+    for(int i=0;i<size.first;i++)
+    {
+        delete[] data[i];
+    }
+    delete[] data;
+
+    return output;
+
+}
+
 
 #endif
