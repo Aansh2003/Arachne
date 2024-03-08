@@ -8,6 +8,8 @@
 #include <stdexcept> 
 #include <omp.h>
 #include <cmath>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
 
@@ -26,8 +28,15 @@ public:
     Tensor<T> add(Tensor<T>);
     Tensor<T> OMPadd(Tensor<T>);
 
+    Tensor(const Tensor& other);
+
     Tensor<float> convertFloat();
     Tensor<T> flatten();
+
+    static Tensor<int> randomTensor(std::pair<int,int>);
+    static Tensor<int> randomTensor(std::pair<int,int>,int min,int max);
+
+    static Tensor<float> randomFloatTensor(std::pair<int,int>);
 
     ~Tensor();
     
@@ -46,6 +55,9 @@ public:
     // Copy function
     Tensor<T> copy();
 
+    // Operations
+    Tensor& operator=(const Tensor& other);
+
     // Helper functions
     pair<int,int> getSize();
     void printSize();
@@ -57,13 +69,11 @@ private:
 };
 
 template<typename T>
-Tensor<T>::~Tensor()
-{
-    for(int i=0;i<this->size.second;i++)
-    {
-        delete this->data[i];
+Tensor<T>::~Tensor() {
+    for (int i = 0; i < this->size.first; ++i) {
+        delete[] data[i];
     }
-    delete this->data;
+    delete[] data;
 }
 
 template<typename T>
@@ -497,5 +507,107 @@ T Tensor<T>::min()
     return big;
 }
 
+template<typename T>
+Tensor<int> Tensor<T>::randomTensor(std::pair<int,int> size)
+{
+    srand(time(NULL));
+    int** data = new int*[size.first];
+    for(int i=0;i<size.first;i++)
+    {
+        data[i] = new int[size.second];
+        for(int j=0;j<size.second;j++)
+        {
+            data[i][j] = rand()-rand();
+        }
+    }
+
+    Tensor<int> output = Tensor(data,size);
+
+    for(int i=0;i<size.first;i++)
+    {
+        delete data[i];
+    }
+    delete data;
+    return output;
+} 
+
+template<typename T>
+Tensor<int> Tensor<T>::randomTensor(std::pair<int,int> size,int min,int max)
+{
+    srand(time(NULL));
+    int** data = new int*[size.first];
+    for(int i=0;i<size.first;i++)
+    {
+        data[i] = new int[size.second];
+        for(int j=0;j<size.second;j++)
+        {
+            data[i][j] = rand()%max + min;
+        }
+    }
+
+    Tensor<int> output = Tensor(data,size);
+
+    for(int i=0;i<size.first;i++)
+    {
+        delete data[i];
+    }
+    delete data;
+    return output;
+} 
+
+template<typename T>
+Tensor<float> Tensor<T>::randomFloatTensor(std::pair<int,int> size)
+{
+    srand(time(NULL));
+    float** data = new float*[size.first];
+    for(int i=0;i<size.first;i++)
+    {
+        data[i] = new float[size.second];
+        for(int j=0;j<size.second;j++)
+        {
+            data[i][j] = (rand()-rand()) / RAND_MAX;
+        }
+    }
+
+    Tensor<float> output = Tensor(data,size);
+
+    for(int i=0;i<size.first;i++)
+    {
+        delete data[i];
+    }
+    delete data;
+    return output;
+} 
+
+template<typename T>
+Tensor<T>& Tensor<T>::operator=(const Tensor& other) {
+    if (this != &other) { // Check for self-assignment
+        // Deallocate existing memory
+        for (int i = 0; i < size.first; ++i) {
+            delete[] data[i];
+        }
+        delete[] data;
+
+        // Copy size
+        size = other.size;
+
+        // Allocate new memory
+        data = new T*[size.first];
+        for (int i = 0; i < size.first; ++i) {
+            data[i] = new T[size.second];
+            std::copy(other.data[i], other.data[i] + size.second, data[i]);
+        }
+    }
+    return *this;
+}
+
+template<typename T>
+Tensor<T>::Tensor(const Tensor& other) : size(other.size) {
+    data = new T*[size.first];
+    for (int i = 0; i < size.first; ++i) {
+        data[i] = new T[size.second];
+        std::copy(other.data[i], other.data[i] + size.second, data[i]);
+    }
+}
 
 #endif
