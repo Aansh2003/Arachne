@@ -5,7 +5,7 @@
 #include "Linear.hpp"
 #include "Flatten.hpp"
 #include "Pipeline.hpp"
-#include "Activation.hpp"
+#include "Relu.hpp"
 #include "Normalize.hpp"
 
 using namespace std;
@@ -40,13 +40,14 @@ int main()
     Tensor b = a.convertFloat().scalarMultiply(1.2);
     // b.printSize();
     Pipeline myPipeline;
-    Linear* q = new Linear(make_pair(4,4),2,Activation::Softmax2d);
+    Linear* q = new Linear(make_pair(4,4),2);
     Normalize* l = new Normalize(make_pair(4,4));
-
+    Relu* r = new Relu(make_pair(4,2));
     //Flatten* q = new Flatten(make_pair(4,2));
     // q->printWeights();
-    myPipeline.add(l);
+    // myPipeline.add(l);
     myPipeline.add(q);
+    myPipeline.add(r);
     myPipeline.printPipeline();
     Tensor<float> out = myPipeline.forward(b);
     out.print();

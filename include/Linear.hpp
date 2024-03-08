@@ -4,12 +4,11 @@
 
 #include "Model.hpp"
 #include <utility>
-#include "Activation.hpp"
 #include <cmath>
 
 class Linear : public Model {
 public:
-    Linear(std::pair<int,int> inputSize, int outputSize, void (*activation_function)(Tensor<float>&));
+    Linear(std::pair<int,int> inputSize, int outputSize);
     int getParamCount() override;
     std::pair<int,int> getInputSize() override;
     std::pair<int,int> getOutputSize() override;
@@ -23,10 +22,9 @@ private:
     std::pair<int,int> outputSize;
     int paramCount;
     std::pair<int,int> weight_size;
-    void (*act_func)(Tensor<float>&);
 };
 
-Linear::Linear(std::pair<int,int> inputSize, int outputSize, void (*activation_function)(Tensor<float>&)) : Model("Linear",true),inputSize(inputSize), outputSize(make_pair(inputSize.second,outputSize)),act_func(activation_function)
+Linear::Linear(std::pair<int,int> inputSize, int outputSize) : Model("Linear",true),inputSize(inputSize), outputSize(make_pair(inputSize.second,outputSize))
 {
     weight_size = make_pair(outputSize,inputSize.second);
     paramCount = weight_size.second * weight_size.first;
@@ -56,7 +54,6 @@ int Linear::getParamCount()
 Tensor<float> Linear::forward(Tensor<float> input)
 {
     Tensor<float> next_val = weights->multiply(input);
-    act_func(next_val);
     return next_val;
 }
 

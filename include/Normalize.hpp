@@ -4,7 +4,6 @@
 
 #include "Model.hpp"
 #include <utility>
-#include "Activation.hpp"
 #include <cmath>
 
 class Normalize : public Model {

@@ -55,8 +55,7 @@ Tensor<float> Pipeline::forward(Tensor<float> input)
     for(Model* model: network)
     {
         input = model->forward(input);
-        if(model->trainable)
-            graph.push_back(input);
+        graph.push_back(input);
     }
     return input;
 }

@@ -3,7 +3,6 @@
 
 #include "Tensor.hpp" 
 #include <string>
-#include "Activation.hpp"
 
 class Model {
 public:
