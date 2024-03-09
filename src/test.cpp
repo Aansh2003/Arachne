@@ -11,6 +11,7 @@
 #include "Adam.hpp"
 #include <chrono>
 #include "SGD.hpp"
+#include "RMSProp.hpp"
 
 
 using namespace std;
@@ -60,7 +61,7 @@ int main()
     myPipeline.add(d);
     myPipeline.add(e);
     myPipeline.printPipeline();
-    SGD optimizer;
+    RMSProp optimizer;
 
     auto start = chrono::high_resolution_clock::now();
 
