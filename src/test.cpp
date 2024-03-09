@@ -8,8 +8,9 @@
 #include "Relu.hpp"
 #include "Normalize.hpp"
 #include "MSELoss.hpp"
-#include "SGD.hpp"
+#include "Adam.hpp"
 #include <chrono>
+#include "SGD.hpp"
 
 
 using namespace std;
@@ -63,7 +64,7 @@ int main()
 
     auto start = chrono::high_resolution_clock::now();
 
-    for(int i=0;i<1000;i++)
+    for(int i=0;i<10;i++)
     {
         Tensor<float> out = myPipeline.forward(a);
         // out.print();
@@ -73,5 +74,5 @@ int main()
     }
     auto stop = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-    cout << "\nTime taken for 1000 epochs : "<< duration.count()/1000 << " milliseconds\n";
+    // cout << "\nTime taken for 1000 epochs : "<< duration.count()/1000 << " milliseconds\n";
 }

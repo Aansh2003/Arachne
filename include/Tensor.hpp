@@ -25,6 +25,8 @@ public:
     Tensor<T> multiply(Tensor<T>);
     Tensor<T> OMPmultiply(Tensor<T>);
 
+    Tensor<T> elem_multiply(Tensor<T>);
+
     Tensor<T> scalarMultiply(float);
     Tensor<T> OMPscalarMultiply(float);
 
@@ -422,6 +424,38 @@ Tensor<T> Tensor<T>::add(Tensor<T> adder)
         for(int j=0;j<this->size.second;j++)
         {
             added[i][j] = this->data[i][j]+adder.data[i][j]; 
+        }
+    }
+
+    Tensor<T> output(added,ml_size);
+
+    for(int i=0;i<this->size.first;i++)
+    {
+        delete added[i];
+    }
+    delete added;
+    
+    return output;
+}
+
+template<typename T>
+Tensor<T> Tensor<T>::elem_multiply(Tensor<T> adder)
+{
+    if(this->size.first != adder.size.first || this->size.second != adder.size.second)
+        throw std::invalid_argument("Matrices should be of same dimension (a,b) * (a,b)");
+
+    T** added = new T*[this->size.first];
+    pair<int,int> ml_size = make_pair(this->size.first,this->size.second);
+    for(int i=0;i<this->size.first;i++)
+    {
+        added[i] = new T[this->size.second];
+    }
+
+    for(int i=0;i<this->size.first;i++)
+    {
+        for(int j=0;j<this->size.second;j++)
+        {
+            added[i][j] = this->data[i][j]*adder.data[i][j]; 
         }
     }
 
