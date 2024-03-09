@@ -6,19 +6,21 @@
 class SGD : public Optimizer
 {
     public:
-    SGD(float);
-    void update_weights(Tensor<float>&,Tensor<float>) override;
+    SGD(float=1e-2,float=0);
+    void update_weights(Tensor<float>&,Tensor<float>,int) override;
 
     private:
     float learning_rate;
+    float weight_decay;
 };
 
-SGD::SGD(float alpha=1e-2) : learning_rate(alpha) {}
+SGD::SGD(float alpha, float weight_decay) : learning_rate(alpha),weight_decay(weight_decay) {}
 
-void SGD::update_weights(Tensor<float>& weights, Tensor<float> gradient)
+
+void SGD::update_weights(Tensor<float>& weights, Tensor<float> gradient,int count)
 {
     gradient.transpose();
-    weights = weights -  gradient.scalarMultiply(learning_rate);
+    weights = weights -  (gradient+weights.scalarMultiply(weight_decay)).scalarMultiply(learning_rate);
 }
 
 #endif

@@ -9,6 +9,8 @@
 #include "Normalize.hpp"
 #include "MSELoss.hpp"
 #include "SGD.hpp"
+#include <chrono>
+
 
 using namespace std;
 
@@ -46,7 +48,7 @@ int main()
     Normalize* l = new Normalize(make_pair(4,4));
     Relu* r = new Relu(make_pair(4,2));
     Linear* d = new Linear(make_pair(4,2),2);
-    Relu *e = new Relu(make_pair(2,2));
+    Relu *e = new Relu(make_pair(2,2),"leaky");
 
     MSELoss loss_fn;
     // // //Flatten* q = new Flatten(make_pair(4,2));
@@ -59,7 +61,9 @@ int main()
     myPipeline.printPipeline();
     SGD optimizer;
 
-    for(int i=0;i<10;i++)
+    auto start = chrono::high_resolution_clock::now();
+
+    for(int i=0;i<1000;i++)
     {
         Tensor<float> out = myPipeline.forward(a);
         // out.print();
@@ -67,5 +71,7 @@ int main()
 
         myPipeline.backward(&optimizer,&loss_fn,actual);
     }
-
+    auto stop = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+    cout << "\nTime taken for 1000 epochs : "<< duration.count()/1000 << " milliseconds\n";
 }

@@ -18,6 +18,9 @@ class Tensor {
 public:
     // Constructor
     Tensor(T**, pair<int,int>);
+    Tensor(const Tensor& other);
+    Tensor(pair<int,int>,T);
+
     // Matrix operations
     Tensor<T> multiply(Tensor<T>);
     Tensor<T> OMPmultiply(Tensor<T>);
@@ -28,11 +31,15 @@ public:
     Tensor<T> add(Tensor<T>);
     Tensor<T> OMPadd(Tensor<T>);
 
-    Tensor(const Tensor& other);
+    Tensor<T> scalarAdd(T);
+
+    Tensor<T> divide(Tensor<T>);
 
     Tensor<float> convertFloat();
     Tensor<T> flatten();
     Tensor<T> reshape(pair<int,int>);
+
+    Tensor<float> sqrt();
 
     static Tensor<int> randomTensor(std::pair<int,int>);
     static Tensor<int> randomTensor(std::pair<int,int>,int min,int max);
@@ -94,6 +101,20 @@ Tensor<T>::Tensor(T** data, pair<int,int> size) {
         for(int j=0;j<size.second;j++)
         {
             this->data[i][j] = *(*(data + i) + j);
+        }
+    }
+}
+
+template<typename T>
+Tensor<T>::Tensor(pair<int,int> size, T data) {
+    // Initialize data and size here if needed
+    this->size = size;
+    this->data = new T*[size.first];
+    for (int i = 0; i < size.first; ++i) {
+        this->data[i] = new T[size.second];
+        for(int j=0;j<size.second;j++)
+        {
+            this->data[i][j] = data;
         }
     }
 }
@@ -293,6 +314,35 @@ Tensor<T> Tensor<T>::scalarMultiply(float multiplicand)
 }
 
 template<typename T>
+Tensor<T> Tensor<T>::scalarAdd(T to_add)
+{
+    T** multiplied = new T*[this->size.first];
+    pair<int,int> ml_size = make_pair(this->size.first,this->size.second);
+    for(int i=0;i<this->size.first;i++)
+    {
+        multiplied[i] = new T[this->size.second];
+    }
+
+    for(int i=0;i<this->size.first;i++)
+    {
+        for(int j=0;j<this->size.second;j++)
+        {
+            multiplied[i][j] = this->data[i][j]+to_add; 
+        }
+    }
+
+    Tensor<T> output(multiplied,ml_size);
+
+    for(int i=0;i<this->size.first;i++)
+    {
+        delete multiplied[i];
+    }
+    delete multiplied;
+    
+    return output;
+}
+
+template<typename T>
 Tensor<T> Tensor<T>::OMPscalarMultiply(float multiplicand)
 {
     T** multiplied = new T*[this->size.first];
@@ -318,6 +368,38 @@ Tensor<T> Tensor<T>::OMPscalarMultiply(float multiplicand)
         delete multiplied[i];
     }
     delete multiplied;
+    
+    return output;
+}
+
+template<typename T>
+Tensor<T> Tensor<T>::divide(Tensor<T> adder)
+{
+    if(this->size.first != adder.size.first || this->size.second != adder.size.second)
+        throw std::invalid_argument("Matrices should be of same dimension (a,b) + (a,b)");
+
+    T** added = new T*[this->size.first];
+    pair<int,int> ml_size = make_pair(this->size.first,this->size.second);
+    for(int i=0;i<this->size.first;i++)
+    {
+        added[i] = new T[this->size.second];
+    }
+
+    for(int i=0;i<this->size.first;i++)
+    {
+        for(int j=0;j<this->size.second;j++)
+        {
+            added[i][j] = this->data[i][j]/adder.data[i][j]; 
+        }
+    }
+
+    Tensor<T> output(added,ml_size);
+
+    for(int i=0;i<this->size.first;i++)
+    {
+        delete added[i];
+    }
+    delete added;
     
     return output;
 }
@@ -436,6 +518,34 @@ Tensor<float> Tensor<T>::convertFloat()
         for(int j=0;j<this->size.second;j++)
         {
             floatTensor[i][j] = float(this->data[i][j]);
+        }
+    }
+    Tensor<float> output(floatTensor,this->size);
+
+    for(int i=0;i<this->size.first;i++)
+    {
+        delete floatTensor[i];
+    }
+    delete floatTensor;
+
+    return output;
+}
+
+
+template<typename T>
+Tensor<float> Tensor<T>::sqrt()
+{
+    float** floatTensor = new float*[this->size.first];
+    for(int i=0;i<this->size.first;i++)
+    {
+        floatTensor[i] = new float[this->size.second];
+    }
+
+    for(int i = 0;i<this->size.first;i++)
+    {
+        for(int j=0;j<this->size.second;j++)
+        {
+            floatTensor[i][j] = float(std::sqrt(this->data[i][j]));
         }
     }
     Tensor<float> output(floatTensor,this->size);

@@ -112,7 +112,7 @@ void Pipeline::backward(Optimizer* optimizer, Loss* loss, Tensor<float> actual)
     for (int i = network.size() - 1; i >= 0; --i) 
     {
         if(network[i]->trainable)
-            optimizer->update_weights(*network[i]->weights,*network[i]->gradients);
+            optimizer->update_weights(*network[i]->weights,*network[i]->gradients,i);
     }
 }
 
