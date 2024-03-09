@@ -11,9 +11,10 @@
 #include "Adam.hpp"
 #include <chrono>
 #include "SGD.hpp"
+#include "Softmax.hpp"
 #include "RMSProp.hpp"
-
-
+#include "MAELoss.hpp"
+#include "CrossEntropyLoss.hpp"
 using namespace std;
 
 int main()
@@ -50,9 +51,9 @@ int main()
     Normalize* l = new Normalize(make_pair(4,4));
     Relu* r = new Relu(make_pair(4,2));
     Linear* d = new Linear(make_pair(4,2),2);
-    Relu *e = new Relu(make_pair(2,2),"leaky");
+    Relu *e = new Relu(make_pair(2,2));
 
-    MSELoss loss_fn;
+    CrossEntropyLoss loss_fn;
     // // //Flatten* q = new Flatten(make_pair(4,2));
     // // // q->printWeights();
     myPipeline.add(l);
@@ -61,14 +62,14 @@ int main()
     myPipeline.add(d);
     myPipeline.add(e);
     myPipeline.printPipeline();
-    RMSProp optimizer;
+    SGD  optimizer;
 
     auto start = chrono::high_resolution_clock::now();
 
     for(int i=0;i<10;i++)
     {
         Tensor<float> out = myPipeline.forward(a);
-        // out.print();
+        out.print();
         cout<<"Loss at epoch "<<i<<": "<<loss_fn.loss(out,actual)<<endl;
 
         myPipeline.backward(&optimizer,&loss_fn,actual);

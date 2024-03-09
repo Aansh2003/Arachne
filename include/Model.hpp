@@ -32,7 +32,7 @@ void Model::backward(Tensor<float> gradient)
 void Model::computeGradients(Tensor<float> gradient)
 {
     gradient.transpose();
-    gradients = new Tensor(*inputs * gradient);\
+    gradients = new Tensor(*inputs * gradient);
 }
 
 #endif
