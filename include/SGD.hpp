@@ -7,7 +7,7 @@ class SGD : public Optimizer
 {
     public:
     SGD(float);
-    void update_weights(Tensor<float>&,Tensor<float>,Tensor<float>) override;
+    void update_weights(Tensor<float>&,Tensor<float>) override;
 
     private:
     float learning_rate;
@@ -15,9 +15,10 @@ class SGD : public Optimizer
 
 SGD::SGD(float alpha=1e-2) : learning_rate(alpha) {}
 
-void SGD::update_weights(Tensor<float>& weights, Tensor<float> gradient, Tensor<float> output)
+void SGD::update_weights(Tensor<float>& weights, Tensor<float> gradient)
 {
-    weights = weights - output * gradient;
+    gradient.transpose();
+    weights = weights -  gradient.scalarMultiply(learning_rate);
 }
 
 #endif

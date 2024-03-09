@@ -102,19 +102,17 @@ Tensor<float> Pipeline::forward(Tensor<T> input)
 
 void Pipeline::backward(Optimizer* optimizer, Loss* loss, Tensor<float> actual)
 {
-    Tensor<float> delta_output = graph.back() - actual;
-    // delta_output.print();
-
-    int count = 0;
-    for(int i=network.size()-1;i>=0;i--)
+    Tensor<float> gradient = loss->derivative(graph.back(),actual);
+    for (int i = network.size() - 1; i >= 0; --i) 
     {
-        if(network[i]->trainable && count == 0)
-        {
-            Tensor<float> weights_copy = network[i]->weights->copy();
-            weights_copy.transpose();
-            Tensor<float> dldw = weights_copy * delta_output;
-            optimizer->update_weights(*network[i]->weights,dldw,delta_output);
-        }
+        if(network[i]->trainable)
+            network[i]->backward(gradient);
+    }
+
+    for (int i = network.size() - 1; i >= 0; --i) 
+    {
+        if(network[i]->trainable)
+            optimizer->update_weights(*network[i]->weights,*network[i]->gradients);
     }
 }
 

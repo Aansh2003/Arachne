@@ -13,7 +13,6 @@ public:
     std::pair<int,int> getInputSize() override;
     std::pair<int,int> getOutputSize() override;
     Tensor<float> forward(Tensor<float>) override;
-    void backward() override;
 private:
     std::pair<int,int> inputSize;
     std::pair<int,int> outputSize;
@@ -46,10 +45,6 @@ Tensor<float> Normalize::forward(Tensor<float> input)
     }
     
     return newCopy;
-}
-
-void Normalize::backward()
-{
 }
 
 std::pair<int,int> Normalize::getOutputSize()

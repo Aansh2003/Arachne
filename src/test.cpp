@@ -53,10 +53,15 @@ int main()
     myPipeline.add(q);
     myPipeline.add(r);
     myPipeline.printPipeline();
-    Tensor<float> out = myPipeline.forward(a);
-    // out.print();
     SGD optimizer;
-    // cout<<loss_fn.loss(out,actual);
 
-    myPipeline.backward(&optimizer,&loss_fn,actual);
+    for(int i=0;i<10;i++)
+    {
+        Tensor<float> out = myPipeline.forward(a);
+        // out.print();
+        cout<<"Loss at epoch "<<i<<": "<<loss_fn.loss(out,actual)<<endl;
+
+        myPipeline.backward(&optimizer,&loss_fn,actual);
+    }
+
 }

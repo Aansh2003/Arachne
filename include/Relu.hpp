@@ -9,7 +9,6 @@ class Relu : public Activation
     public:
         Relu(std::pair<int,int> inputSize, std::string type = "relu");
         Tensor<float> forward(Tensor<float>) override;
-        void backward() override;
 
         std::string type;
     private:
@@ -37,11 +36,6 @@ Tensor<float> Relu::forward(Tensor<float> input)
         throw std::runtime_error("Invalid ReLu type");
     }
     return input;
-}
-
-void Relu::backward()
-{
-
 }
 
 void Relu::relu(float* input)

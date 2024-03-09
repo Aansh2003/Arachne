@@ -14,7 +14,7 @@ public:
     std::pair<int,int> getOutputSize() override;
     Tensor<float> forward(Tensor<float>) override;
     void printWeights();
-    void backward() override;
+    void computeGradients(Tensor<float>);
 
 private:
     std::pair<int,int> inputSize;
@@ -52,13 +52,13 @@ int Linear::getParamCount()
 
 Tensor<float> Linear::forward(Tensor<float> input)
 {
+    // *inputs = input.copy();
     Tensor<float> next_val = *weights*input;
+    inputs = new Tensor(input);
+    isforward = true;
     return next_val;
 }
 
-void Linear::backward()
-{
-}
 
 std::pair<int,int> Linear::getOutputSize()
 {
