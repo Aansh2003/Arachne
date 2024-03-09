@@ -45,6 +45,8 @@ int main()
     Linear* q = new Linear(make_pair(4,4),2);
     Normalize* l = new Normalize(make_pair(4,4));
     Relu* r = new Relu(make_pair(4,2));
+    Linear* d = new Linear(make_pair(4,2),2);
+    Relu *e = new Relu(make_pair(2,2));
 
     MSELoss loss_fn;
     // // //Flatten* q = new Flatten(make_pair(4,2));
@@ -52,6 +54,8 @@ int main()
     myPipeline.add(l);
     myPipeline.add(q);
     myPipeline.add(r);
+    myPipeline.add(d);
+    myPipeline.add(e);
     myPipeline.printPipeline();
     SGD optimizer;
 
