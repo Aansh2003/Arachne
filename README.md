@@ -8,7 +8,7 @@ Basic Tensor manipulation and operation features found in **include/Tensor.hpp**
 
 ## Layers
 
-Parent class Model, following classes derive from it.
+Parent class Model, following classes derive from it.  
 Trainable classes must follow an activation layer.
 Name (Trainable)
 
