@@ -2,7 +2,40 @@
 
 This is a C++ implementation for Deep Learning models. The architecture allows custom model structures and also provides in-built features to aid in easier preprocessing and training. It is currently suited for Datasets however functionality for other data formats(like images and sounds will be added soon.
 
+# Features
 
+Basic Tensor manipulation and operation features found in **include/Tensor.hpp**
+
+## Layers
+
+Parent class Model, following classes derive from it.
+Trainable classes must follow an activation layer.
+Name (Trainable)
+
++ Linear (True)
++ Normalize (False)
++ Flatten (False)
+
+## Activation layers
+Class Activation deriving from Model, following classes derive from it.
+All are non-trainable
+
++ Relu (Regular,Leaky)
++ Softmax (Regular, 2D)
+
+## Optimizers
+Parent class Optimizer, following classes derive from it.
+
++ SGD
++ RMSProp
++ Adam
+
+## Loss functions
+Parent class Loss, following classes derive from it.
+
++ MSELoss
++ MAELoss
++ CrossEntropyLoss
 
 # Documentation
 
@@ -13,7 +46,7 @@ touch src/myfile.cpp
 nano src/myfile.cpp
 ```
 
-Replace nano with any editor of your choice.\
+Replace nano with any editor of your choice.
 
 Use `make` at the home directory to start compilation.
 
