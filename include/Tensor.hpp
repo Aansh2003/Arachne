@@ -28,7 +28,7 @@ public:
 
     static Tensor<T> readCSV(const std::string& filename);
 
-
+    Tensor<T> Normalize();
     // Matrix operations
     Tensor<T> multiply(Tensor<T>);
     Tensor<T> OMPmultiply(Tensor<T>);
@@ -55,6 +55,10 @@ public:
     static Tensor<int> randomTensor(std::pair<int,int>,int min,int max);
 
     static Tensor<float> randomFloatTensor(std::pair<int,int>);
+
+    vector<Tensor<T>> row_split();
+    std::pair<Tensor<T>,Tensor<T>> input_output_split(vector<int>);
+
 
     ~Tensor();
     
@@ -89,6 +93,7 @@ public:
     pair<int,int> size;
 private:
     // static void swap(T*,T*);
+    static bool find(vector<int>,int);
 };
 
 template<typename T>
@@ -934,4 +939,114 @@ Tensor<T> Tensor<T>::readCSV(const std::string& filename) {
 
     return out;
 }
+
+template<typename T>
+vector<Tensor<T>> Tensor<T>::row_split()
+{
+    vector<Tensor<T>> split;
+    for(int i=0;i<this->getSize().first;i++)
+    {
+        T** temp_data = new T*[1];
+        temp_data[0] = new T[this->getSize().second];
+
+        for(int j=0;j<this->getSize().second;j++)
+        {
+            temp_data[0][j] = this->data[i][j];
+        }
+
+        Tensor<T> temp = Tensor<T>(temp_data,make_pair(1,this->getSize().second));
+        split.push_back(temp);
+        delete[] temp_data[0];
+        delete[] temp_data;
+    }
+    return split;
+}
+
+template<typename T>
+std::pair<Tensor<T>,Tensor<T>> Tensor<T>::input_output_split(vector<int> output_indices)
+{
+    for(int i:output_indices)
+    {
+        if (i>=this->getSize().second)
+            throw std::runtime_error("indices not in range of tensor");
+    }
+    T** input_data = new T*[this->getSize().first];
+    T** output_data = new T*[this->getSize().first];
+
+    for(int i=0;i<this->getSize().first;i++)
+    {
+        input_data[i] = new T[this->getSize().second-output_indices.size()];
+        output_data[i] = new T[output_indices.size()];
+
+        int inp_count = 0;
+        int out_count = 0;
+
+        for(int j=0;j<this->getSize().second;j++)
+        {
+            if(Tensor::find(output_indices,j))
+            {
+                output_data[i][out_count] = this->data[i][j];
+                out_count++;
+            }
+            else
+            {
+                input_data[i][inp_count] = this->data[i][j];
+                inp_count++;
+            }
+        }
+    }
+
+    Tensor<T> input = Tensor<T>(input_data,make_pair(this->getSize().first,this->getSize().second-output_indices.size()));
+    Tensor<T> output = Tensor<T>(output_data,make_pair(this->getSize().first,output_indices.size()));
+
+    for(int i=0;i<this->getSize().first;i++)
+    {
+        delete[] input_data[i];
+        delete[] output_data[i];
+    }
+    delete[] input_data;
+    delete[] output_data;
+
+    return make_pair(input,output);
+}
+
+template<typename T>
+bool Tensor<T>::find(vector<int> indices,int value)
+{
+    for(int i:indices)
+    {
+        if(value == i)
+            return true;
+    }
+    return false;
+}
+
+template<typename T>
+Tensor<T> Tensor<T>::Normalize()
+{
+    Tensor<T> transposed_tensor = this->copy();
+    transposed_tensor.transpose();
+
+    for(int i=0;i<transposed_tensor.getSize().first;i++)
+    {
+        T max = transposed_tensor.data[i][0];
+        T min = transposed_tensor.data[i][0];
+        for(int j=0;j<transposed_tensor.getSize().second;j++)
+        {
+            if(transposed_tensor.data[i][j]>max)
+                max = transposed_tensor.data[i][j];
+            if(transposed_tensor.data[i][j]<min)
+                min = transposed_tensor.data[i][j];
+        }
+
+        for(int j=0;j<transposed_tensor.getSize().second;j++)
+        {
+            transposed_tensor.data[i][j] = (transposed_tensor.data[i][j] - min)/(max-min);
+        }
+    }
+
+    transposed_tensor.transpose();
+    return transposed_tensor;
+}
+
 #endif
