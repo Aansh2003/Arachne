@@ -124,10 +124,21 @@ Tensor<float> Pipeline::OMPforward(Tensor<T> input)
 void Pipeline::backward(Optimizer* optimizer, Loss* loss, Tensor<float> actual)
 {
     Tensor<float> gradient = loss->derivative(graph.back(),actual);
+
+    int start = 0;
     for (int i = network.size() - 1; i >= 0; --i) 
     {
         if(network[i]->trainable)
-            network[i]->backward(gradient);
+        {
+            if(start==0)
+            {
+                network[i]->backward(gradient,false);
+                start++;
+            }
+            else
+                network[i]->backward(gradient,true);
+        }
+            
     }
 
     int count = 0;
@@ -148,7 +159,7 @@ void Pipeline::OMPbackward(Optimizer* optimizer, Loss* loss, Tensor<float> actua
     for (int i = network.size() - 1; i >= 0; --i) 
     {
         if(network[i]->trainable)
-            network[i]->OMPbackward(gradient);
+            network[i]->OMPbackward(gradient,false);
     }
 
     int count = 0;

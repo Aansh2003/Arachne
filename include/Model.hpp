@@ -10,11 +10,11 @@ public:
     
     virtual Tensor<float> forward(Tensor<float>) = 0;
     virtual Tensor<float> OMPforward(Tensor<float>) = 0;
-    void backward(Tensor<float>);
-    void OMPbackward(Tensor<float>);
+    void backward(Tensor<float>,bool);
+    void OMPbackward(Tensor<float>,bool);
 
-    void computeGradients(Tensor<float>);
-    void OMPcomputeGradients(Tensor<float>);
+    void computeGradients(Tensor<float>,bool);
+    void OMPcomputeGradients(Tensor<float>,bool);
 
     virtual ~Model() {}
     virtual int getParamCount() = 0;
@@ -28,29 +28,32 @@ public:
     Tensor<float>* inputs;
 };
 
-void Model::backward(Tensor<float> gradient)
+void Model::backward(Tensor<float> gradient,bool local)
 {
     if(!isforward)
         throw std::runtime_error("Forward pass must be called before backward pass");
-    computeGradients(gradient);
+    computeGradients(gradient,local);
 }
 
-void Model::OMPbackward(Tensor<float> gradient)
+void Model::OMPbackward(Tensor<float> gradient,bool local)
 {
     if(!isforward)
         throw std::runtime_error("Forward pass must be called before backward pass");
-    OMPcomputeGradients(gradient);
+    OMPcomputeGradients(gradient,local);
 }
 
-void Model::computeGradients(Tensor<float> gradient)
+void Model::computeGradients(Tensor<float> gradient,bool local)
 {
-    gradient.transpose();
-    gradients = new Tensor(*inputs * gradient);
+    Tensor<float> temp = inputs->copy();
+    temp.transpose();
+    gradients = new Tensor(temp * gradient);
+    if(local)
+        *gradients = *gradients * (*weights);
 }
 
-void Model::OMPcomputeGradients(Tensor<float> gradient)
+void Model::OMPcomputeGradients(Tensor<float> gradient,bool local)
 {
-    gradient.transpose();
+    inputs->transpose();
     gradients = new Tensor(inputs->OMPmultiply(gradient));
 }
 

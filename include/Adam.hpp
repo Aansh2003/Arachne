@@ -30,7 +30,8 @@ void Adam::update_weights(Tensor<float>& weights, Tensor<float> gradient, int co
         v_v.push_back(new Tensor<float>(weights.getSize(),0.0));
     }
 
-    gradient.transpose();
+    // gradient.transpose();
+
     Tensor<float>* m = m_v[count];
     Tensor<float>* v = v_v[count];
 

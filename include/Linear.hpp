@@ -24,9 +24,9 @@ private:
     std::pair<int,int> weight_size;
 };
 
-Linear::Linear(std::pair<int,int> inputSize, int outputSize) : Model("Linear",true),inputSize(inputSize), outputSize(make_pair(inputSize.second,outputSize))
+Linear::Linear(std::pair<int,int> inputSize, int outputSize) : Model("Linear",true),inputSize(inputSize), outputSize(make_pair(inputSize.first,outputSize))
 {
-    weight_size = make_pair(outputSize,inputSize.second);
+    weight_size = make_pair(inputSize.second,outputSize);
     paramCount = weight_size.second * weight_size.first;
     float value = std::sqrt(6.0/((inputSize.first*inputSize.second)+(outputSize*inputSize.second)));
     float **data = new float*[weight_size.first];
@@ -54,7 +54,7 @@ int Linear::getParamCount()
 Tensor<float> Linear::forward(Tensor<float> input)
 {
     // *inputs = input.copy();
-    Tensor<float> next_val = *weights*input;
+    Tensor<float> next_val = input*(*weights);
     inputs = new Tensor(input);
     isforward = true;
     return next_val;
@@ -63,7 +63,7 @@ Tensor<float> Linear::forward(Tensor<float> input)
 Tensor<float> Linear::OMPforward(Tensor<float> input)
 {
     // *inputs = input.copy();
-    Tensor<float> next_val = weights->OMPmultiply(input);
+    Tensor<float> next_val = input.OMPmultiply(*weights);
     inputs = new Tensor(input);
     isforward = true;
     return next_val;

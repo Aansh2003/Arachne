@@ -22,7 +22,7 @@ void RMSProp::update_weights(Tensor<float>& weights, Tensor<float> gradient, int
         accumulated_gradient_squared.push_back(new Tensor<float>(weights.getSize(), 0.0));
     }
 
-    gradient.transpose();
+    // gradient.transpose();
 
     Tensor<float>* accum_grad_sq = accumulated_gradient_squared[count];
 

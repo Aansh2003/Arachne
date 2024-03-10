@@ -19,8 +19,8 @@ SGD::SGD(float alpha, float weight_decay) : learning_rate(alpha),weight_decay(we
 
 void SGD::update_weights(Tensor<float>& weights, Tensor<float> gradient,int count)
 {
-    gradient.transpose();
-    weights = weights -  (gradient+weights.scalarMultiply(weight_decay)).scalarMultiply(learning_rate);
+    // gradient.transpose();
+    weights = weights - (gradient+weights.scalarMultiply(weight_decay)).scalarMultiply(learning_rate);
 }
 
 #endif
