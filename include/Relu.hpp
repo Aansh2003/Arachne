@@ -9,6 +9,8 @@ class Relu : public Activation
     public:
         Relu(std::pair<int,int> inputSize, std::string type = "relu");
         Tensor<float> forward(Tensor<float>) override;
+        Tensor<float> OMPforward(Tensor<float>) override;
+
 
         std::string type;
     private:
@@ -37,6 +39,12 @@ Tensor<float> Relu::forward(Tensor<float> input)
     }
     return input;
 }
+
+Tensor<float> Relu::OMPforward(Tensor<float> input)
+{
+    return forward(input);
+}
+
 
 void Relu::relu(float* input)
 {

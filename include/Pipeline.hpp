@@ -17,7 +17,12 @@ public:
     void printPipeline();
     template<typename T>
     Tensor<float> forward(Tensor<T> input);
+
+    template<typename T>
+    Tensor<float> OMPforward(Tensor<T> input);
+
     void backward(Optimizer*,Loss*,Tensor<float>);
+    void OMPbackward(Optimizer*,Loss*,Tensor<float>);
 private:
     std::vector<Model*> network;
     vector<Tensor<float>> graph;
@@ -100,6 +105,22 @@ Tensor<float> Pipeline::forward(Tensor<T> input)
     return matrix;
 }
 
+template<typename T>
+Tensor<float> Pipeline::OMPforward(Tensor<T> input)
+{
+    if(network.back()->trainable)
+        throw std::runtime_error("Last layer must be an activation layer, use Linear activation to maintain outputs");
+    Tensor<float> matrix = input.convertFloat();
+    graph.push_back(matrix);
+    for(Model* model: network)
+    {
+        matrix = model->OMPforward(matrix);
+        if (dynamic_cast<Activation*>(model))
+            graph.push_back(matrix);
+    }
+    return matrix;
+}
+
 void Pipeline::backward(Optimizer* optimizer, Loss* loss, Tensor<float> actual)
 {
     Tensor<float> gradient = loss->derivative(graph.back(),actual);
@@ -107,6 +128,27 @@ void Pipeline::backward(Optimizer* optimizer, Loss* loss, Tensor<float> actual)
     {
         if(network[i]->trainable)
             network[i]->backward(gradient);
+    }
+
+    int count = 0;
+    for (int i = network.size() - 1; i >= 0; --i) 
+    {
+        if(network[i]->trainable)
+        {
+            optimizer->update_weights(*network[i]->weights,*network[i]->gradients,count);
+            count++;
+        }
+            
+    }
+}
+
+void Pipeline::OMPbackward(Optimizer* optimizer, Loss* loss, Tensor<float> actual)
+{
+    Tensor<float> gradient = loss->derivative(graph.back(),actual);
+    for (int i = network.size() - 1; i >= 0; --i) 
+    {
+        if(network[i]->trainable)
+            network[i]->OMPbackward(gradient);
     }
 
     int count = 0;

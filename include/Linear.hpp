@@ -13,8 +13,9 @@ public:
     std::pair<int,int> getInputSize() override;
     std::pair<int,int> getOutputSize() override;
     Tensor<float> forward(Tensor<float>) override;
+    Tensor<float> OMPforward(Tensor<float>) override;
+
     void printWeights();
-    void computeGradients(Tensor<float>);
 
 private:
     std::pair<int,int> inputSize;
@@ -54,6 +55,15 @@ Tensor<float> Linear::forward(Tensor<float> input)
 {
     // *inputs = input.copy();
     Tensor<float> next_val = *weights*input;
+    inputs = new Tensor(input);
+    isforward = true;
+    return next_val;
+}
+
+Tensor<float> Linear::OMPforward(Tensor<float> input)
+{
+    // *inputs = input.copy();
+    Tensor<float> next_val = weights->OMPmultiply(input);
     inputs = new Tensor(input);
     isforward = true;
     return next_val;

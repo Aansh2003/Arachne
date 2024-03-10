@@ -7,9 +7,15 @@
 class Model {
 public:
     Model(const std::string& _type = "model", const bool& trainable = false,Tensor<float>* weights = NULL) : type(_type),trainable(trainable),weights(weights) {}
+    
     virtual Tensor<float> forward(Tensor<float>) = 0;
+    virtual Tensor<float> OMPforward(Tensor<float>) = 0;
     void backward(Tensor<float>);
+    void OMPbackward(Tensor<float>);
+
     void computeGradients(Tensor<float>);
+    void OMPcomputeGradients(Tensor<float>);
+
     virtual ~Model() {}
     virtual int getParamCount() = 0;
     virtual std::pair<int,int> getInputSize() = 0;
@@ -29,10 +35,23 @@ void Model::backward(Tensor<float> gradient)
     computeGradients(gradient);
 }
 
+void Model::OMPbackward(Tensor<float> gradient)
+{
+    if(!isforward)
+        throw std::runtime_error("Forward pass must be called before backward pass");
+    OMPcomputeGradients(gradient);
+}
+
 void Model::computeGradients(Tensor<float> gradient)
 {
     gradient.transpose();
     gradients = new Tensor(*inputs * gradient);
+}
+
+void Model::OMPcomputeGradients(Tensor<float> gradient)
+{
+    gradient.transpose();
+    gradients = new Tensor(inputs->OMPmultiply(gradient));
 }
 
 #endif

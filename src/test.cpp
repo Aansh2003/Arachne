@@ -36,6 +36,8 @@ int main()
     pair<int,int> out_size(2,4);
     Tensor<float> actual = Tensor(data,out_size);
     // actual.flatten().print();
+    Tensor<float> dat = Tensor<float>::readCSV("data.csv");
+    dat.print();
 
     // a.print();
     // Tensor b = a.copy();
@@ -46,35 +48,35 @@ int main()
     // a.print();
     // cout<<endl;
     // // // b.printSize();
-    Pipeline myPipeline;
-    Linear* q = new Linear(make_pair(4,4),2);
-    Normalize* l = new Normalize(make_pair(4,4));
-    Relu* r = new Relu(make_pair(4,2));
-    Linear* d = new Linear(make_pair(4,2),2);
-    Relu *e = new Relu(make_pair(2,2));
+    // Pipeline myPipeline;
+    // Linear* q = new Linear(make_pair(4,4),2);
+    // Normalize* l = new Normalize(make_pair(4,4));
+    // Relu* r = new Relu(make_pair(4,2));
+    // Linear* d = new Linear(make_pair(4,2),2);
+    // Relu *e = new Relu(make_pair(2,2));
 
-    CrossEntropyLoss loss_fn;
-    // // //Flatten* q = new Flatten(make_pair(4,2));
-    // // // q->printWeights();
-    myPipeline.add(l);
-    myPipeline.add(q);
-    myPipeline.add(r);
-    myPipeline.add(d);
-    myPipeline.add(e);
-    myPipeline.printPipeline();
-    SGD  optimizer;
+    // MSELoss loss_fn;
+    // // // //Flatten* q = new Flatten(make_pair(4,2));
+    // // // // q->printWeights();
+    // myPipeline.add(l);
+    // myPipeline.add(q);
+    // myPipeline.add(r);
+    // myPipeline.add(d);
+    // myPipeline.add(e);
+    // myPipeline.printPipeline();
+    // Adam  optimizer;
 
-    auto start = chrono::high_resolution_clock::now();
+    // auto start = chrono::high_resolution_clock::now();
 
-    for(int i=0;i<10;i++)
-    {
-        Tensor<float> out = myPipeline.forward(a);
-        out.print();
-        cout<<"Loss at epoch "<<i<<": "<<loss_fn.loss(out,actual)<<endl;
+    // for(int i=0;i<10;i++)
+    // {
+    //     Tensor<float> out = myPipeline.OMPforward(a);
+    //     // out.print();
+    //     cout<<"Loss at epoch "<<i<<": "<<loss_fn.loss(out,actual)<<endl;
 
-        myPipeline.backward(&optimizer,&loss_fn,actual);
-    }
-    auto stop = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+    //     myPipeline.OMPbackward(&optimizer,&loss_fn,actual);
+    // }
+    // auto stop = chrono::high_resolution_clock::now();
+    // auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
     // cout << "\nTime taken for 1000 epochs : "<< duration.count()/1000 << " milliseconds\n";
 }

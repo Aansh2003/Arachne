@@ -10,6 +10,11 @@
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <limits>
+
 
 using namespace std;
 
@@ -20,6 +25,9 @@ public:
     Tensor(T**, pair<int,int>);
     Tensor(const Tensor& other);
     Tensor(pair<int,int>,T);
+
+    static Tensor<T> readCSV(const std::string& filename);
+
 
     // Matrix operations
     Tensor<T> multiply(Tensor<T>);
@@ -51,7 +59,9 @@ public:
     ~Tensor();
     
     T max();
+    std::pair<int,int> argmax();
     T min();
+    std::pair<int,int> argmin();
 
     // Matrix tranformations
     void transpose();
@@ -817,5 +827,111 @@ Tensor<T> Tensor<T>::reshape(pair<int,int> size)
 
 }
 
+template<typename T>
+std::pair<int,int> Tensor<T>::argmax()
+{
+    T max = this->data[0][0];
+    int i_max=0,j_max=0;
+    for (int i=0;i<this->getSize().first;i++)
+    {
+        for(int j=0;j<this->getSize().second;j++)
+        {
+            if(this->data[i][j]>max)
+            {
+                max = this->data[i][j];
+                i_max = i;
+                j_max = j;
+            }
+        }
+    }
 
+    return make_pair(i_max,j_max);
+}
+
+template<typename T>
+std::pair<int,int> Tensor<T>::argmin()
+{
+    T min = this->data[0][0];
+    int i_min=0,j_min=0;
+    for (int i=0;i<this->getSize().first;i++)
+    {
+        for(int j=0;j<this->getSize().second;j++)
+        {
+            if(this->data[i][j]>min)
+            {
+                min = this->data[i][j];
+                i_min = i;
+                j_min = j;
+            }
+        }
+    }
+
+    return make_pair(i_min,j_min);
+}
+
+template<typename T>
+Tensor<T> Tensor<T>::readCSV(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        throw std::runtime_error("Failed to open file");
+    }
+
+    std::vector<std::vector<T>> data;
+
+    std::string line;
+    while (std::getline(file, line)) {
+        std::vector<T> row;
+        std::stringstream ss(line);
+        std::string cell;
+
+        while (std::getline(ss, cell, ',')) {
+            if (cell.empty()) {
+                row.push_back(std::numeric_limits<T>::quiet_NaN()); // Push NaN for empty cell
+            } else {
+                std::stringstream converter(cell);
+                T value;
+                converter >> value;
+                row.push_back(value);
+            }
+        }
+        data.push_back(row);
+    }
+
+    if (data.empty()) {
+        std::cerr << "File is empty: " << filename << std::endl;
+    }
+
+    int num_rows = data.size();
+    int num_cols = data[0].size();
+
+    for(auto row_:data)
+    {
+        if(row_.size() != num_cols)
+            throw std::runtime_error("All rows must be of equal length");
+    }
+
+    std::pair<int,int> size = make_pair(num_rows,num_cols);
+
+    T** data_tensor = new T*[size.first];
+
+    for(int i=0;i<size.first;i++)
+    {
+        data_tensor[i] = new T[size.second];
+        for(int j=0;j<size.second;j++)
+        {
+            data_tensor[i][j] = data[i][j];
+        }
+    }
+
+    Tensor<T> out = Tensor(data_tensor,size);
+
+    for(int i=0;i<size.first;i++)
+    {
+        delete[] data_tensor[i];
+    }
+
+    delete[] data_tensor;
+
+    return out;
+}
 #endif
