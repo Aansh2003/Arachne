@@ -232,28 +232,28 @@ CustomLayer::CustomLayer(std::pair<int,int> inputSize, int outputSize) : Model("
     // Initialize weights, parameter counts etc here. Add your own initialization function if needed.
 }
 
-int Linear::getParamCount()
+int CustomLayer::getParamCount()
 {
     return paramCount;
 }
 
-Tensor<float> Linear::forward(Tensor<float> input)
+Tensor<float> CustomLayer::forward(Tensor<float> input)
 {
     // Define your own forward function here
 }
 
-Tensor<float> Linear::OMPforward(Tensor<float> input)
+Tensor<float> CustomLayer::OMPforward(Tensor<float> input)
 {
     // Define your own Open MP boosted forward function. Optional
 }
 
 
-std::pair<int,int> Linear::getOutputSize()
+std::pair<int,int> CustomLayer::getOutputSize()
 {
     return outputSize;
 }
 
-std::pair<int,int> Linear::getInputSize()
+std::pair<int,int> CustomLayer::getInputSize()
 {
     return inputSize;
 }
