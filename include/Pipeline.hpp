@@ -123,8 +123,8 @@ Tensor<float> Pipeline::OMPforward(Tensor<T> input)
 
 void Pipeline::backward(Optimizer* optimizer, Loss* loss, Tensor<float> actual)
 {
-    Tensor<float> gradient = loss->derivative(graph.back(),actual);
-
+    Tensor<float> last_gradient = loss->derivative(graph.back(),actual);\
+    Tensor<float> gradient = Tensor<float>(make_pair(1,1),0.0);
     int start = 0;
     for (int i = network.size() - 1; i >= 0; --i) 
     {
@@ -132,13 +132,14 @@ void Pipeline::backward(Optimizer* optimizer, Loss* loss, Tensor<float> actual)
         {
             if(start==0)
             {
-                network[i]->backward(gradient,false);
+                network[i]->backward(last_gradient,gradient,false);
                 start++;
             }
             else
-                network[i]->backward(gradient,true);
+            {
+                network[i]->backward(last_gradient,gradient,true);
+            }
         }
-            
     }
 
     int count = 0;

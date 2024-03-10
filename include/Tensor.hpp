@@ -224,7 +224,12 @@ template<typename T>
 Tensor<T> Tensor<T>::multiply(Tensor<T> b)
 {
     if(this->size.second != b.size.first)
-        throw std::invalid_argument("Incorrect size for matrix multiplication, must be of type - (a,b)x(b,c)");
+    {
+        this->printSize();
+        b.printSize();
+        throw std::invalid_argument("Incorrect size for matrix multiplication, must be of type - ("+to_string(this->getSize().first)+","+to_string(this->getSize().second)+")x("+to_string(b.getSize().first)+","+to_string(b.getSize().second)+")");
+    }
+        
 
     T** multiplied = new T*[this->size.first];
     pair<int,int> ml_size = make_pair(this->size.first,b.size.second);

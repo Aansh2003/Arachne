@@ -1,86 +1,58 @@
 #include <iostream>
 #include "Tensor.hpp"
 #include <utility>
-#include <cstdlib>
 #include "Linear.hpp"
-#include "Flatten.hpp"
 #include "Pipeline.hpp"
 #include "Relu.hpp"
-#include "Normalize.hpp"
 #include "MSELoss.hpp"
-#include "Adam.hpp"
-#include <chrono>
 #include "SGD.hpp"
-#include "Softmax.hpp"
-#include "RMSProp.hpp"
-#include "MAELoss.hpp"
-#include "CrossEntropyLoss.hpp"
+
 using namespace std;
 
 int main()
 {
-    // std::pair<int,int> pair;
+    Tensor<float> dat = Tensor<float>::readCSV("WineQT.csv");
+    dat = dat.Normalize();
+    std::vector<int> ind;
+    ind.push_back(11);
+    std::pair<Tensor<float>,Tensor<float>> vals = dat.input_output_split(ind);
+    Tensor<float> input = vals.first;
+    Tensor<float> output = vals.second;
+    vector<Tensor<float>> input_list = input.row_split();
+    vector<Tensor<float>> output_list = output.row_split();
 
-    pair<int,int> size(2,2);
+    Pipeline myPipeline;
+    Linear* q = new Linear(make_pair(1,12),6);
+    Relu* r = new Relu(make_pair(1,6));
+    Linear* d = new Linear(make_pair(1,6),3);
+    Relu *e = new Relu(make_pair(1,3));
+    Linear *f = new Linear(make_pair(1,3),1);
+    Relu *g = new Relu(make_pair(1,1));
 
-    Tensor<int> a = Tensor<int>::randomTensor(size);
-    a.print();
-    
-    // float **data = new float*[4];
-    // for(int i=0;i<2;i++)
-    // {
-    //     data[i] = new float[2];
-    //     for(int j=0;j<4;j++)
-    //     {
-    //         data[i][j] = 1;
-    //     }
-    // }
+    MSELoss loss_fn;
 
-    // pair<int,int> out_size(4,2);
-    // Tensor<float> actual = Tensor(data,out_size);
-    // // actual.flatten().print();
-    // Tensor<float> dat = Tensor<float>::readCSV("WineQT.csv");
-    // dat.Normalize().print();
-    // // a.print();
-    // // Tensor b = a.copy();
-    // // b.print();
-    // // b.print();
-    // // cout<<"\n";
-    // // a.OMPtranspose();
-    // // a.print();
-    // // cout<<endl;
-    // // // // b.printSize();
-    // Pipeline myPipeline;
-    // Normalize *l = new Normalize(make_pair(4,2));
-    // Linear* q = new Linear(make_pair(4,2),3);
-    // Relu* r = new Relu(make_pair(4,3));
-    // Linear* d = new Linear(make_pair(4,3),2);
-    // Relu *e = new Relu(make_pair(4,2));
+    myPipeline.add(q);
+    myPipeline.add(r);
+    myPipeline.add(d);
+    myPipeline.add(e);
+    myPipeline.add(f);
+    myPipeline.add(g);
 
-    // MSELoss loss_fn;
-    // // // //Flatten* q = new Flatten(make_pair(4,2));
-    // // // // q->printWeights();
-    // myPipeline.add(l);
-    // myPipeline.add(q);
-    // myPipeline.add(r);
-    // myPipeline.add(d);
-    // myPipeline.add(e);
-    // myPipeline.printPipeline();
-    // SGD  optimizer;
 
-    // auto start = chrono::high_resolution_clock::now();
+    myPipeline.printPipeline();
+    SGD  optimizer(1e-4);
 
-    // for(int i=0;i<10;i++)
-    // {
-    //     // a.printSize();
-    //     Tensor<float> out = myPipeline.forward(a);
-    //     // out.printSize();
-    //     // out.print();
-    //     cout<<"Loss at epoch "<<i<<": "<<loss_fn.loss(out,actual)<<endl;
-
-    //     myPipeline.backward(&optimizer,&loss_fn,actual);
-    // }
-    // auto stop = chrono::high_resolution_clock::now();
-    // auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-    // cout << "\nTime taken for 1000 epochs : "<< duration.count()/1000 << " milliseconds\n";
+    for(int j=0;j<5;j++)
+    {
+        float loss = 0;
+        for(int i=0;i<input_list.size();i++)
+        {
+            input = input_list[i];
+            output = output_list[i];
+            Tensor<float> pred = myPipeline.forward(input);
+            loss += loss_fn.loss(pred,output);
+            myPipeline.backward(&optimizer,&loss_fn,output);
+        }
+        cout<<"Loss at epoch "<<j<<": "<<loss<<endl;
+    }
 }
